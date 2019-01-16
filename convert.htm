@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>converter</title>
+    <script type="text/javascript">
+      let readURLParams = function(url) {
+        var q = url.split('?');
+        var vars = q[1].split('&');
+
+        var pair = {}
+        for (var i = 0; i < vars.length; i++) {
+          item = vars[i].split('=');
+          pair[item[0]] = item[1]
+        }
+        console.log(pair)
+        return(pair)
+      }
+
+      let convertMapURL = function(url) {
+        params = readURLParams(url);
+        result = document.getElementById('result')
+        result.value = '<https://google.com/maps/dir/?api=1&destination='+params.lat+','+params.lon+'>'
+      }
+    </script>
+  </head>
+  <body>
+    <h1>Convert pgan map link</h1>
+    <input type="text" id="inputurl">
+    <button onclick="convertMapURL(document.getElementById('inputurl').value)">Convert</button>
+    <br />
+    <textarea rows="4" cols="60" id="result"></textarea>
+  </body>
+</html>
