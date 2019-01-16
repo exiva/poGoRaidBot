@@ -1,0 +1,40 @@
+{
+  "location": {
+    "latitude": 40.741435,
+    "longitude": -73.648066,
+    "step_limit": 3,
+    "step_size": 0.0082
+  },
+
+  "proxy": {
+    "enabled": false,
+    "host": "socks5://localhost:9090"
+  },
+  "version": 8500,
+  "hashkey": "",
+  "googl_key": "",
+  "geocoder": "",
+  "telegram": {
+    "enabled": false,
+    "api_key": "",
+    "channel_id": -100107828433
+  },
+  "discord": {
+    "enabled": true,
+    "username": "Discord Bot",
+    "avatar": "",
+    "raid_webhook": "",
+    "egg_webhook": "",
+    "exclusive_webhook": "",
+    "sponsor_webhook": "",
+    "lure_webhook": "",
+    "bot_status": "",
+    "gmaps": ""
+  },
+  "mongodb": {
+    "enabled": true,
+    "hostname": "localhost",
+    "port": 27017,
+    "database": "data"
+  }
+}
