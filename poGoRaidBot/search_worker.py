@@ -14,10 +14,10 @@ from threading import Thread
 from queue import Queue
 
 from google.protobuf.json_format import MessageToJson
-from protos.pogoprotos.networking.responses.fort_search_response_pb2 import FortSearchResponse
-from protos.pogoprotos.networking.responses.get_map_objects_response_pb2 import GetMapObjectsResponse
-from protos.pogoprotos.networking.responses.gym_get_info_response_pb2 import GymGetInfoResponse
-from protos.pogoprotos.networking.responses.fort_details_response_pb2 import FortDetailsResponse
+from .protos.pogoprotos.networking.responses.fort_search_response_pb2 import FortSearchResponse
+from .protos.pogoprotos.networking.responses.get_map_objects_response_pb2 import GetMapObjectsResponse
+from .protos.pogoprotos.networking.responses.gym_get_info_response_pb2 import GymGetInfoResponse
+from .protos.pogoprotos.networking.responses.fort_details_response_pb2 import FortDetailsResponse
 
 log = logging.getLogger(__name__)
 
