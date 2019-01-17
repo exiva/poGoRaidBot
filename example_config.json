@@ -10,6 +10,10 @@
     "enabled": true,
     "host": "socks5://localhost:5000"
   },
+  "server": {
+    "host": "localhost",
+    "port": 5000
+  },
   "version": 8500,
   "hashkey": "",
   "googl_key": "",

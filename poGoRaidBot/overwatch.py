@@ -237,10 +237,11 @@ def overwatch(args, config):
         gym_db=db_gyms, raid_queue=msg_raid_queue, gym_db_queue=db_gym_queue,
         pokestop_db_queue=db_pokestop_queue, raid_db_queue=db_raid_queue
         )
+    log.info(f"Starting server at http://{config['server']['host']}:{config['server']['port']}")
 
     # db_gym_queue.put({"gym": "something"})
     server.run(threaded=True, use_reloader=False, debug=True,
-                host='192.168.1.103', port=5000)
+                host=config['server']['host'], port=config['server']['port'])
 
 
     # discord.startBot(msg_raid_queue)
