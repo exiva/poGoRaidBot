@@ -45,8 +45,8 @@ def process_pokestop(db, pokestop_queue):
                     'location': {
                         'type': 'Point',
                         'coordinates': [
-                            pokestop['latitude'],
-                            pokestop['longitude']
+                            pokestop['longitude'],
+                            pokestop['latitude']
                         ]
                     }
                 }
@@ -86,8 +86,8 @@ def process_gym(db, gym_queue):
         #             'location': {
         #                 'type': 'Point',
         #                 'coordinates': [
-        #                     gym['lat'],
-        #                     gym['lng']
+        #                     gym['lng'],
+        #                     gym['lat']
         #                 ]
         #             }
         #         }

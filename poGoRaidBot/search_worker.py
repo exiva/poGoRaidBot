@@ -138,8 +138,8 @@ class SearchWorker(Flask):
                             'location': {
                                 'type': 'Point',
                                 'coordinates': [
-                                    f_lat,
-                                    f_lng
+                                    f_lng,
+                                    f_lat
                                 ]
                             }
                         }
