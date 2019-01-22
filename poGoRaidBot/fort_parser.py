@@ -19,8 +19,8 @@ def parseGym(gymData, gymDBDetails):
             g_name = "Unknown Gym Name"
 
         g_id = gymData['id']
-        g_lat = gymData['latitude']
-        g_lon = gymData['longitude']
+        g_lat = float(gymData['latitude'])
+        g_lon = float(gymData['longitude'])
         g_team = _TEAMCOLOR.values_by_name[gymData.get('ownedByTeam', 'NEUTRAL')].number
         g_sponsor = gymData.get('sponsor', None)
         g_exraid = gymData.get('isExRaidEligible', False)
@@ -99,8 +99,8 @@ def parsePokestop(pokestopData):
         ps_id = pokestopData['fort_id']
         ps_name = pokestopData['name']
         ps_desc = pokestopData.get('description', '')
-        ps_lat = pokestopData['latitude']
-        ps_lon = pokestopData['longitude']
+        ps_lat = float(pokestopData['latitude'])
+        ps_lon = float(pokestopData['longitude'])
         ps_modifier = pokestopData.get('modifiers', None)
         ps_modifier_type = None
         ps_modifier_expire = None

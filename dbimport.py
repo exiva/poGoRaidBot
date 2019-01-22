@@ -35,8 +35,8 @@ with open('pokestops.csv', 'r') as f:
                 'location': {
                     'type': 'Point',
                     'coordinates': [
-                        row['lat'],
-                        row['lon']
+                        float(row['lat']),
+                        float(row['lon'])
                     ]
                 }
             }
