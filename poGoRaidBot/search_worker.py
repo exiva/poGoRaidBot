@@ -174,6 +174,11 @@ class SearchWorker(Flask):
                     if fort_count > 0:
                         self.process_queue.put(proto.get('GetMapObjects', {}))
 
+            #we had 3 empty scans. delete this area.
+            if device['emptyScan'] == 3:
+                log.warn(f"Nothing was found at {device['locations'][device['position']]} for 3 GMOs. Nothing is here. Removing it from search list.")
+                device['locations'].pop(device['position'])
+
             if fort_count > 0 or device['emptyScan'] == 3:
                 device['emptyScan'] = 0
                 if device['position'] >= len(device['locations']) - 1:

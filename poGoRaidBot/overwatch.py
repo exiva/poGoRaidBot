@@ -224,7 +224,7 @@ def overwatch(args, config):
     for i, device in enumerate(config['devices']):
         devices[device['uuid']] = {
             'identifier': device['identifer'],
-            'locations': locs[i],
+            'locations': locs[i].tolist(),
             'position': 0,
             'emptyScan': 0
         }
