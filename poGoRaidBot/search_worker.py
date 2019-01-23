@@ -159,15 +159,14 @@ class SearchWorker(Flask):
             device = self.devices[map_objects.get('uuid')]
             proto_responses = map_objects.get('protos', None)
             for proto in proto_responses:
-                map_objects = proto.get('GetMapObjects', None)
-                if map_objects:
+                if proto.get('GetMapObjects', None):
                     #put response into Queue and move on. let thread process it
-                    self.process_queue.put(map_objects)
+                    self.process_queue.put(proto.get('GetMapObjects', {}))
 
-                    if device['position'] >= len(device['locations']) - 1:
-                        device['position'] = 0
-                    else:
-                        device['position'] += 1
+            if device['position'] >= len(device['locations']) - 1:
+                device['position'] = 0
+            else:
+                device['position'] += 1
         else:
             log.warn("Unknown device UUID {}".format(map_objects.get('uuid')))
         return 'Okay', 200
