@@ -60,6 +60,7 @@ class SearchWorker(Flask):
         self.route("/", methods=['GET'])(self.index)
         self.route("/loc", methods=['POST'])(self.getLocation)
         self.route("/data", methods=['POST'])(self.getData)
+        self.route("/status", methods=['GET'])(self.status)
 
     def index(self):
         return "A Wild MissingNo. Appeared!"
@@ -158,6 +159,7 @@ class SearchWorker(Flask):
         if map_objects.get('uuid') in self.devices:
             device = self.devices[map_objects.get('uuid')]
             proto_responses = map_objects.get('protos', None)
+            device['lastscan'] = datetime.datetime.now().timestamp()
             for proto in proto_responses:
                 if proto.get('GetMapObjects', None):
                     #put response into Queue and move on. let thread process it
@@ -211,3 +213,18 @@ class SearchWorker(Flask):
         else:
             log.warn("Unknown device UUID {}".format(req.get('uuid')))
         return "okay", 200
+
+    def status(self):
+        status = []
+        for dev in self.devices:
+            device = {
+                'name': self.devices[dev]['identifier'],
+                'position': self.devices[dev]['position'],
+                'lastscan': self.devices[dev]['lastscan'],
+                'lastseen': [
+                    self.devices[dev]['locations'][self.devices[dev]['position']]
+                ]
+            }
+            status.append(device)
+
+        return jsonify(status)

@@ -226,7 +226,8 @@ def overwatch(args, config):
             'identifier': device['identifer'],
             'locations': locs[i].tolist(),
             'position': 0,
-            'emptyScan': 0
+            'emptyScan': 0,
+            'lastscan': datetime.datetime.now().timestamp()
         }
 
     log.info(f"{len(config['devices'])} devices configured with {len(locs[0])} locations each.")
