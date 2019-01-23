@@ -161,12 +161,28 @@ class SearchWorker(Flask):
             for proto in proto_responses:
                 if proto.get('GetMapObjects', None):
                     #put response into Queue and move on. let thread process it
-                    self.process_queue.put(proto.get('GetMapObjects', {}))
+                    response = b64decode(proto.get('GetMapObjects'))
+                    #decde raw protos to JSON
+                    gmo = GetMapObjectsResponse()
+                    gmo.ParseFromString(response)
+                    gmo_response = json.loads(MessageToJson(gmo))
+                    fort_count = 0
+                    for i, cell in enumerate(gmo_response['mapCells']):
+                        if cell.get('forts'):
+                            fort_count += len(cell.get('forts', {}))
 
-            if device['position'] >= len(device['locations']) - 1:
-                device['position'] = 0
+                    if fort_count > 0:
+                        self.process_queue.put(proto.get('GetMapObjects', {}))
+
+            if fort_count > 0 or device['emptyScan'] == 3:
+                device['emptyScan'] = 0
+                if device['position'] >= len(device['locations']) - 1:
+                    device['position'] = 0
+                else:
+                    device['position'] += 1
             else:
-                device['position'] += 1
+                device['emptyScan'] += 1
+                log.warn(f"No forts found. Got caught speeding? Attempt {device['emptyScan']} of 3")
         else:
             log.warn("Unknown device UUID {}".format(map_objects.get('uuid')))
         return 'Okay', 200
