@@ -175,11 +175,11 @@ class SearchWorker(Flask):
                         self.process_queue.put(proto.get('GetMapObjects', {}))
 
             #we had 3 empty scans. delete this area.
-            if device['emptyScan'] == 3:
-                log.warn(f"Nothing was found at {device['locations'][device['position']]} for 3 GMOs. Nothing is here. Removing it from search list.")
+            if device['emptyScan'] == 6:
+                log.warn(f"Nothing was found at {device['locations'][device['position']]} for 6 GMOs. Removing from search list.")
                 device['locations'].pop(device['position'])
 
-            if fort_count > 0 or device['emptyScan'] == 3:
+            if fort_count > 0 or device['emptyScan'] == 6:
                 device['emptyScan'] = 0
                 if device['position'] >= len(device['locations']) - 1:
                     device['position'] = 0
@@ -187,7 +187,7 @@ class SearchWorker(Flask):
                     device['position'] += 1
             else:
                 device['emptyScan'] += 1
-                log.warn(f"No forts found. Got caught speeding? Attempt {device['emptyScan']} of 3")
+                log.warn(f"No forts found. Got caught speeding? Attempt {device['emptyScan']} of 6")
         else:
             log.warn("Unknown device UUID {}".format(map_objects.get('uuid')))
         return 'Okay', 200
