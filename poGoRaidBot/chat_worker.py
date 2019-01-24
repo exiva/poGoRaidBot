@@ -127,8 +127,8 @@ def raid_chat_worker(args, config, db, regions, raids):
                             form_name = pkmn_form[r_boss_pkmn_form]+' ' if pkmn_form[r_boss_pkmn_form] else ''
 
 
-                            title = f"{r_city} {r_gym['name']}: {r_exclusive}level {raid['level']} {form_name}{pkmn_name[r_boss_pkmn]} raid started"
-                            message = f"{r_exclusive}Level {raid['level']} {form_name}{pkmn_name[r_boss_pkmn]} raid started at {r_gym['name']} {r_city}. Starts at {r_start}, Ends at {r_end}.\n\nSuggested counters: <{r_boss_gamepress}>{ex_raid}"
+                            title = f"{r_city} {r_gym['name']}: {r_exclusive}level {raid['level']} {form_name}{pkmn_name[r_boss_pkmn].name} raid started"
+                            message = f"{r_exclusive}Level {raid['level']} {form_name}{pkmn_name[r_boss_pkmn].name} raid started at {r_gym['name']} {r_city}. Starts at {r_start}, Ends at {r_end}.\n\nSuggested counters: <{r_boss_gamepress}>{ex_raid}"
                             started_raids.append(raid['id'])
 
                         if config['telegram']['enabled']:
