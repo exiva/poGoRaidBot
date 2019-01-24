@@ -1,4 +1,4 @@
-from collections import defaultdict
+from collections import defaultdict, namedtuple
 
 form = namedtuple('form', 'name type1 type2', defaults=(None,) * 3)
 pkmn_form = defaultdict(lambda: None, {
