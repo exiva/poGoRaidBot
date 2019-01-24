@@ -119,13 +119,13 @@ def raid_chat_worker(args, config, db, regions, raids):
                             r_boss_pkmn = r_boss.get('pokemon_id', None)
                             r_boss_pkmn_form = r_boss.get('pokemon_form', None)
                             r_boss_gamepress = make_googl(config['googl_key'], f"https://pokemongo.gamepress.gg/pokemon/{r_boss_pkmn}#raid-boss-counters")
-                            if r_boss_pkmn_form == "Alolan":
+
+                            form_name = pkmn_form[r_boss_pkmn_form].name+' ' if pkmn_form[r_boss_pkmn_form] else ''
+
+                            if pkmn_form[r_boss_pkmn_form].name == "Alolan":
                                 img = "http://assets.pokemon.com/assets/cms2/img/pokedex/full/{:03}_f2.png".format(r_boss_pkmn)
                             else:
                                 img = "http://assets.pokemon.com/assets/cms2/img/pokedex/full/{:03}.png".format(r_boss_pkmn)
-
-                            form_name = pkmn_form[r_boss_pkmn_form]+' ' if pkmn_form[r_boss_pkmn_form] else ''
-
 
                             title = f"{r_city} {r_gym['name']}: {r_exclusive}level {raid['level']} {form_name}{pkmn_name[r_boss_pkmn].name} raid started"
                             message = f"{r_exclusive}Level {raid['level']} {form_name}{pkmn_name[r_boss_pkmn].name} raid started at {r_gym['name']} {r_city}. Starts at {r_start}, Ends at {r_end}.\n\nSuggested counters: <{r_boss_gamepress}>{ex_raid}"
