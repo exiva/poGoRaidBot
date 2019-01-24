@@ -160,6 +160,7 @@ class SearchWorker(Flask):
             device = self.devices[map_objects.get('uuid')]
             proto_responses = map_objects.get('protos', None)
             device['lastscan'] = datetime.datetime.now().timestamp()
+            fort_count = 0
             for proto in proto_responses:
                 if proto.get('GetMapObjects', None):
                     #put response into Queue and move on. let thread process it
@@ -168,7 +169,6 @@ class SearchWorker(Flask):
                     gmo = GetMapObjectsResponse()
                     gmo.ParseFromString(response)
                     gmo_response = json.loads(MessageToJson(gmo))
-                    fort_count = 0
                     for i, cell in enumerate(gmo_response['mapCells']):
                         if cell.get('forts'):
                             fort_count += len(cell.get('forts', {}))
