@@ -223,7 +223,8 @@ class SearchWorker(Flask):
                 'lastscan': self.devices[dev]['lastscan'],
                 'lastseen': [
                     self.devices[dev]['locations'][self.devices[dev]['position']]
-                ]
+                ],
+                'locations': len(self.devices[dev]['locations'])
             }
             status.append(device)
 
