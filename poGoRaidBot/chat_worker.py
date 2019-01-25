@@ -76,9 +76,7 @@ def raid_chat_worker(args, config, db, regions, raids):
                 raid = r_gym.get('raid')
                 r_boss = raid.get('boss', None)
                 weather = r_gym.get('weather')
-                if weather[0]:
-                    conditions = weather_conditions[_WEATHERCONDITION.values_by_name[weather[0]].number]
-                    # conditions = weather_conditions[_WEATHERCONDITION.values_by_name[weather[0]].number]
+
                 db_raid = db.find_one({'raid_id': raid['id']})
                 db_raid_id = None
                 db_raid_boss = None
@@ -133,9 +131,12 @@ def raid_chat_worker(args, config, db, regions, raids):
                                 img = "http://assets.pokemon.com/assets/cms2/img/pokedex/full/{:03}.png".format(r_boss_pkmn)
                             r_boss_boost = ''
 
-                            for type in r_boss_types:
-                                if type in conditions[1]:
-                                    r_boss_boost = f"\n\n*{conditions[0]} Weather Boost Active*"
+                            if weather:
+                                w = _WEATHERCONDITION.values_by_name[weather[0]].number
+                                conditions = weather_conditions[w]
+                                for type in r_boss_types:
+                                    if type in conditions[1]:
+                                        r_boss_boost = f"\n\n*{conditions[0]} Weather Boost Active*"
 
                             title = f"{r_city} {r_gym['name']}: {r_exclusive}level {raid['level']} {form_name}{pkmn_name[r_boss_pkmn].name} raid started"
                             message = f"{r_exclusive}Level {raid['level']} {form_name}{pkmn_name[r_boss_pkmn].name} raid started at {r_gym['name']} {r_city}. Starts at {r_start}, Ends at {r_end}.\n\nSuggested counters: <{r_boss_gamepress}>{ex_raid}{r_boss_boost}"
