@@ -122,7 +122,7 @@ class SearchWorker(Flask):
                 #get lv10 s2 cell for weather
                 p = s2sphere.LatLng.from_degrees(f_lat, f_lng)
                 cell = s2sphere.CellId().from_lat_lng(p).parent(10)
-                cellid = ctypes.c_long(cell.id()).value
+                cellid = ctypes.c_int64(cell.id()).value
 
                 # parse gym info from the map
                 if f_type == 0 and (f_raid or not self.gym_db.find_one({'id': f_id})):
