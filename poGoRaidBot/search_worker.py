@@ -3,6 +3,7 @@ import time
 import datetime
 import random
 import requests
+import ctypes
 from .fort_parser import parseGym, parsePokestop
 # from .conditions import weather_conditions
 from geopy.distance import great_circle
@@ -82,7 +83,13 @@ class SearchWorker(Flask):
 
             try:
                 weather = gmo_response['clientWeather']
-            except:
+                    alerts = None
+                    for alert in cell.get("alerts", {}):
+                        alert = alert.get("severity", None)
+                    self.weatherConditions.update({cell['s2CellId']:
+                        (cell['gameplayWeather']['gameplayCondition'], alerts)})
+            except Exception as e:
+                log.error("Caught exception decoding weather {}".format(e))
                 weather = None
             fort_count = 0
             pokestop_count = 0
@@ -109,11 +116,17 @@ class SearchWorker(Flask):
                 f_lat = f['latitude']
                 f_lng = f['longitude']
 
+                #get lv10 s2 cell for weather
+                p = s2sphere.LatLng.from_degrees(f_lat, f_lng)
+                cell = s2sphere.CellId().from_lat_lng(p).parent(10)
+                cellid = ctypes.c_long(cell.id()).value
+
                 # parse gym info from the map
                 if f_type == 0 and (f_raid or not self.gym_db.find_one({'id': f_id})):
                     gym_count += 1
                     gym_details = self.gym_db.find_one({'id': f_id})
                     gym, raid = parseGym(f, gym_details)
+                    gym['weather'] = self.weatherConditions.get(str(cellid), None)
                     # log.info(f"Found gym {gym_details['name']}")
                     if raid:
                         gym['raid'] = raid
@@ -146,7 +159,7 @@ class SearchWorker(Flask):
                         }
                         self.pokestop_db.insert_one(doc).inserted_id
             # pos = device['position']
-            log.info(f"Found {fort_count} forts. {gym_count} Gyms {pokestop_count} Pokestops {len(raids)} Raids Current weather: {weather}")
+            log.info(f"Found {fort_count} forts. {gym_count} Gyms {pokestop_count} Pokestops {len(raids)} Raids")
             # push our results to their queues.
             self.gym_db_queue.put(gyms)
             # self.pokestop_db.put(pokestops)

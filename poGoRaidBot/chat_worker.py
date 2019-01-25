@@ -8,9 +8,11 @@ import telegram
 from telegram import ParseMode
 from .pkmn import pkmn_names
 from .forms import pkmn_form
+from .conditions import weather_conditions
 from json import JSONDecodeError
 from requests import RequestException
 
+from .protos.pogoprotos.enums.weather_condition_pb2 import _WEATHERCONDITION
 
 def make_googl(key, url):
     apiUrl = 'https://www.googleapis.com/urlshortener/v1/url?key={}'.format(key)
@@ -70,10 +72,11 @@ def raid_chat_worker(args, config, db, regions, raids):
             r_gyms = raids.get()
             # print("Incoming gyms with raids: {}".format(r_gyms))
             for r_gym in r_gyms:
-                # print("Gym: {}".format(r_gym))
+                # print("Gym details: {}".format(r_gym))
                 raid = r_gym.get('raid')
                 r_boss = raid.get('boss', None)
-
+                weather = r_gym.get('weather')
+                conditions = weather_conditions[_WEATHERCONDITION.values_by_name[weather[0]].number]
                 db_raid = db.find_one({'raid_id': raid['id']})
                 db_raid_id = None
                 db_raid_boss = None
@@ -119,16 +122,21 @@ def raid_chat_worker(args, config, db, regions, raids):
                             r_boss_pkmn = r_boss.get('pokemon_id', None)
                             r_boss_pkmn_form = r_boss.get('pokemon_form', None)
                             r_boss_gamepress = make_googl(config['googl_key'], f"https://pokemongo.gamepress.gg/pokemon/{r_boss_pkmn}#raid-boss-counters")
-
+                            r_boss_types = pkmn_name[r_boss_pkmn].types
                             form_name = pkmn_form[r_boss_pkmn_form].name+' ' if pkmn_form[r_boss_pkmn_form] else ''
 
                             if r_boss_pkmn_form and pkmn_form[r_boss_pkmn_form].name == "Alolan":
                                 img = "http://assets.pokemon.com/assets/cms2/img/pokedex/full/{:03}_f2.png".format(r_boss_pkmn)
                             else:
                                 img = "http://assets.pokemon.com/assets/cms2/img/pokedex/full/{:03}.png".format(r_boss_pkmn)
+                            r_boss_boost = ''
+
+                            for type in r_boss_types:
+                                if type in conditions[1]:
+                                    r_boss_boost = f"\n\n*{conditions[0]} Weather Boost Active*"
 
                             title = f"{r_city} {r_gym['name']}: {r_exclusive}level {raid['level']} {form_name}{pkmn_name[r_boss_pkmn].name} raid started"
-                            message = f"{r_exclusive}Level {raid['level']} {form_name}{pkmn_name[r_boss_pkmn].name} raid started at {r_gym['name']} {r_city}. Starts at {r_start}, Ends at {r_end}.\n\nSuggested counters: <{r_boss_gamepress}>{ex_raid}"
+                            message = f"{r_exclusive}Level {raid['level']} {form_name}{pkmn_name[r_boss_pkmn].name} raid started at {r_gym['name']} {r_city}. Starts at {r_start}, Ends at {r_end}.\n\nSuggested counters: <{r_boss_gamepress}>{ex_raid}{r_boss_boost}"
                             started_raids.append(raid['id'])
 
                         if config['telegram']['enabled']:
