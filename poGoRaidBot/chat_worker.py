@@ -76,7 +76,9 @@ def raid_chat_worker(args, config, db, regions, raids):
                 raid = r_gym.get('raid')
                 r_boss = raid.get('boss', None)
                 weather = r_gym.get('weather')
-                conditions = weather_conditions[_WEATHERCONDITION.values_by_name[weather[0]].number]
+                if weather[0]:
+                    conditions = weather_conditions[_WEATHERCONDITION.values_by_name[weather[0]].number]
+                    # conditions = weather_conditions[_WEATHERCONDITION.values_by_name[weather[0]].number]
                 db_raid = db.find_one({'raid_id': raid['id']})
                 db_raid_id = None
                 db_raid_boss = None
