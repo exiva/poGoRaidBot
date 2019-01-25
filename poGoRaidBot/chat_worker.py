@@ -139,7 +139,7 @@ def raid_chat_worker(args, config, db, regions, raids):
                                         r_boss_boost = f"\n\n*{conditions[0]} Weather Boost Active*"
 
                             title = f"{r_city} {r_gym['name']}: {r_exclusive}level {raid['level']} {form_name}{pkmn_name[r_boss_pkmn].name} raid started"
-                            message = f"{r_exclusive}Level {raid['level']} {form_name}{pkmn_name[r_boss_pkmn].name} raid started at {r_gym['name']} {r_city}. Starts at {r_start}, Ends at {r_end}.\n\nSuggested counters: <{r_boss_gamepress}>{ex_raid}{r_boss_boost}"
+                            message = f"{r_exclusive}Level {raid['level']} {form_name}{pkmn_name[r_boss_pkmn].name} raid started at {r_gym['name']} {r_city}. Starts at {r_start}, Ends at {r_end}.{r_boss_boost}{ex_raid}"
                             started_raids.append(raid['id'])
 
                         if config['telegram']['enabled']:
