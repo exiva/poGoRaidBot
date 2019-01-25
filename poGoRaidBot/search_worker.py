@@ -3,6 +3,7 @@ import time
 import datetime
 import random
 import requests
+import s2sphere
 import ctypes
 from .fort_parser import parseGym, parsePokestop
 # from .conditions import weather_conditions
@@ -36,6 +37,7 @@ class SearchWorker(Flask):
         self.gym_db_queue = kwargs.get('gym_db_queue')
         self.pokestop_db_queue = kwargs.get('pokestop_db_queue')
         self.raid_db_queue = kwargs.get('raid_db_queue')
+        self.weatherConditions = {}
 
         self.process_queue = Queue()
 
@@ -83,6 +85,7 @@ class SearchWorker(Flask):
 
             try:
                 weather = gmo_response['clientWeather']
+                for cell in weather:
                     alerts = None
                     for alert in cell.get("alerts", {}):
                         alert = alert.get("severity", None)
