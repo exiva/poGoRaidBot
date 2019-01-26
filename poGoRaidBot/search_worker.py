@@ -203,6 +203,10 @@ class SearchWorker(Flask):
                     device['position'] = 0
                 else:
                     device['position'] += 1
+            elif fort_count > 0 and gym_count == 0:
+                log.warn(f"Found forts, but no Gyms. We don't need to be here. {device['locations'][device['position']]}")
+                device['locations'].pop(device['position'])
+                device['emptyScan'] == 6
             else:
                 device['emptyScan'] += 1
                 log.warn(f"No forts found. Got caught speeding? Attempt {device['emptyScan']} of 6")
