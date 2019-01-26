@@ -97,6 +97,12 @@ def raid_chat_worker(args, config, db, regions, raids):
                             "$geoIntersects": {
                                 "$geometry": { 'type': "Point", "coordinates": [ r_gym['lng'], r_gym['lat']]}
                             }}})
+
+                        if not region:
+                            r_region = f"{r_gym['lat']},{r_gym['lng']}"
+                        else:
+                            r_region = region['name']
+
                         # print(region['region_name'])
                         # db.regions.find({ geometry: { $geoIntersects: { $geometry: { type: "Point", coordinates: [ -73.578019,40.733076  ] } } } })
                         if not gym_cities.get(r_gym['id']):  # create a cache todo: move to database
@@ -163,7 +169,7 @@ def raid_chat_worker(args, config, db, regions, raids):
                                         "url": g_mapImg
                                     },
                                     "footer": {
-                                        "text": region['region_name']
+                                        "text": r_region
                                     }
                                 }],
                                 "content": f'{message}\n\nNavigate with Google Maps <{g_navGoogle}> | Apple Maps <{g_navApple}> | Waze <{g_navWaze}>',
