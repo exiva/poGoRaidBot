@@ -99,7 +99,7 @@ def raid_chat_worker(args, config, db, regions, raids):
                             }}})
 
                         if region:
-                            r_region = region['name']
+                            r_region = region['region_name']
                         else:
                             r_region = f"{r_gym['lat']},{r_gym['lng']}"
 
