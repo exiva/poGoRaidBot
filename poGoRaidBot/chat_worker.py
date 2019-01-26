@@ -1,3 +1,4 @@
+import logging
 import queue
 import pendulum
 import time
@@ -13,6 +14,8 @@ from json import JSONDecodeError
 from requests import RequestException
 
 from .protos.pogoprotos.enums.weather_condition_pb2 import _WEATHERCONDITION
+
+log = logging.getLogger(__name__)
 
 def make_googl(key, url):
     apiUrl = 'https://www.googleapis.com/urlshortener/v1/url?key={}'.format(key)
@@ -37,10 +40,13 @@ def getCity(lat, lng, key):
 
 
 def raid_chat_worker(args, config, db, regions, raids):
+    log.info("Starting chat worker")
     if config['telegram']['enabled']:
+        log.info("Telegram enabled")
         bot = telegram.Bot(config['telegram']['api_key'])
 
     if config['discord']['enabled']:
+        log.info("Discord webhooks enabled")
         raid_hook = config['discord']['raid_webhook']
         egg_hook = config['discord']['egg_webhook']
         exclusive_hook = config['discord']['exclusive_webhook']
@@ -85,6 +91,7 @@ def raid_chat_worker(args, config, db, regions, raids):
                     db_raid_boss = db_raid.get('pokemon_id', None)
 
                 if (r_boss and raid['id'] not in started_raids) or (raid['id'] not in raid_sent):
+                        log.info(f"Processing raid {raid['id']}")
                         # print(raid)
                         g_team, g_team_icon = teams.get(r_gym['team'])
                         g_mapUrl = f"http://maps.google.com/maps?q={r_gym['lat']},{r_gym['lng']}"
@@ -177,23 +184,24 @@ def raid_chat_worker(args, config, db, regions, raids):
                             success = False
                             while not success:
                                 try:
-                                    if raid['exclusive']:
-                                        resp = requests.post("https://discordapp.com/api/webhooks/{}".format(exclusive_hook), json=payload)
-
-                                    if r_gym['sponsor']:
-                                        resp = requests.post("https://discordapp.com/api/webhooks/{}".format(sponsor_hook), json=payload)
-
+                                    # if raid['exclusive']:
+                                    #     resp = requests.post("https://discordapp.com/api/webhooks/{}".format(exclusive_hook), json=payload)
+                                    #
+                                    # if r_gym['sponsor']:
+                                    #     resp = requests.post("https://discordapp.com/api/webhooks/{}".format(sponsor_hook), json=payload)
+                                    #
                                     if not r_boss:
                                         resp = requests.post("https://discordapp.com/api/webhooks/{}".format(egg_hook), json=payload)
                                     else:
                                         resp = requests.post("https://discordapp.com/api/webhooks/{}".format(raid_hook), json=payload)
                                     if resp.status_code == 204:
+                                        log.info(f"Posted webhook {resp.text}")
                                         raid_sent.append(raid['id'])
                                         success = True
                                         time.sleep(1)
                                     else:
-                                        print(f"raid webhook failed: {resp.status_code}.")
-                                        print(f"payload: {payload}")
+                                        log.error(f"raid webhook failed: {resp.status_code}.")
+                                        log.debug(f"payload: {payload}")
                                         time.sleep(4)
                                 except RequestException as e:
                                     time.sleep(3)
