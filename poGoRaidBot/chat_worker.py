@@ -98,10 +98,10 @@ def raid_chat_worker(args, config, db, regions, raids):
                                 "$geometry": { 'type': "Point", "coordinates": [ r_gym['lng'], r_gym['lat']]}
                             }}})
 
-                        if not region:
-                            r_region = f"{r_gym['lat']},{r_gym['lng']}"
-                        else:
+                        if region:
                             r_region = region['name']
+                        else:
+                            r_region = f"{r_gym['lat']},{r_gym['lng']}"
 
                         # print(region['region_name'])
                         # db.regions.find({ geometry: { $geoIntersects: { $geometry: { type: "Point", coordinates: [ -73.578019,40.733076  ] } } } })
