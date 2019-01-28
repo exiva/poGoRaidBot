@@ -18,34 +18,27 @@ db_pokestops = db.pokestops
 db_raids = db.raids
 
 
-with open('pokestops.csv', 'r') as f:
-    fields = ["name","url","external_id","lat","lon"]
+with open('ingress.csv', 'r') as f:
+    # str = portalGuid + ",\"" + str + "\"," + url + "," + lat + "," + lng
+    fields = ["external_id","name","url","lat","lon"]
     dialect = csv.Sniffer().sniff(f.read(1024))
     reader = csv.DictReader(f, fieldnames=fields, dialect=dialect)
     f.seek(0)
     for row in reader:
-        if not db_pokestops.find_one({'id': row['external_id']}):
-            print(f"{row['name']} is new. Adding to DB.")
-            document = {
-                'id': row['external_id'],
-                'added': datetime.datetime.utcnow(),
-                'lastSeen': datetime.datetime.utcnow(),
-                'name': row['name'],
-                'image': row['url'],
-                'location': {
-                    'type': 'Point',
-                    'coordinates': [
-                        float(row['lon']),
-                        float(row['lat'])
-                    ]
-                }
-            }
-            db_pokestops.insert_one(document).inserted_id
-        else:
+        gym = gym_db.find_one({'id': row['external_id']})
+        pokestop = db_pokestops.find_one({'id': row['external_id']})
+        if gym and gym['name'] == "Unknown Gym Name":
             print(f"Updating {row['name']}")
             document = {
                 'name': row['name'],
                 'image': row['url'],
-                'lastSeen': datetime.datetime.utcnow()
+            }
+            gym_db.update_one({'id': row['external_id']}, {'$set': document}).modified_count
+
+        if pokestop and pokestop['name'] is None:
+            print(f"Updating {row['name']}")
+            document = {
+                'name': row['name'],
+                'image': row['url'],
             }
             db_pokestops.update_one({'id': row['external_id']}, {'$set': document}).modified_count
