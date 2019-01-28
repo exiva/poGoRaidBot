@@ -63,43 +63,35 @@ def process_pokestop(db, pokestop_queue):
 
 def process_gym(db, gym_queue):
     log.info("Starting gym db worker.")
-    # while True:
-        # log.info("Queue size: {}".format(gym_queue.qsize()))
-        # time.sleep(1)
-        # try:
-        #     gyms = gym_queue.get()
-        #     for gym in gyms:
-        #         log.info("Processing...")
-        #     gym_queue.task_done()
-        # except Exception as e:
-        #     log.info('Exception: %s.', e)
-        # log.info(gyms)
-        # for gym in gyms:
-        #     log.info(gym)
-        #     if not db.find_one({'id': gym['id']}):
-        #         document = {
-        #             'id': gym['id'],
-        #             'added': datetime.datetime.utcnow(),
-        #             'lastSeen': datetime.datetime.utcnow(),
-        #             'name': gym['name'],
-        #             'isSponsored': gym['sponsor'],
-        #             'location': {
-        #                 'type': 'Point',
-        #                 'coordinates': [
-        #                     gym['lng'],
-        #                     gym['lat']
-        #                 ]
-        #             }
-        #         }
-        #         db.insert_one(document).inserted_id
-        #     else:
-        #         document = {
-        #             'name': gym['name'],
-        #             'isSponsored': gym['sponsor'],
-        #             'lastSeen': datetime.datetime.utcnow()
-        #         }
-        #         db.update_one({'id': gym['id']}, {'$set': document}).modified_count
-        # gym_queue.task_done()
+    while True:
+        gyms = gym_queue.get()
+        for gym in gyms:
+            log.info(gym)
+            if not db.find_one({'id': gym['id']}):
+                log.info(f"Adding new gym: {gym['id']}")
+                document = {
+                    'id': gym['id'],
+                    'added': datetime.datetime.utcnow(),
+                    'lastSeen': datetime.datetime.utcnow(),
+                    'name': gym['name'],
+                    'isSponsored': gym['sponsor'],
+                    'location': {
+                        'type': 'Point',
+                        'coordinates': [
+                            gym['lng'],
+                            gym['lat']
+                        ]
+                    }
+                }
+                db.insert_one(document).inserted_id
+            else:
+                document = {
+                    'name': gym['name'],
+                    'isSponsored': gym['sponsor'],
+                    'lastSeen': datetime.datetime.utcnow()
+                }
+                db.update_one({'id': gym['id']}, {'$set': document}).modified_count
+        gym_queue.task_done()
 
 def process_raid(db, raid_queue):
     log.info("Starting raid db worker")

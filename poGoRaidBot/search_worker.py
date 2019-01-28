@@ -164,7 +164,8 @@ class SearchWorker(Flask):
             # pos = device['position']
             log.info(f"Found {fort_count} forts. {gym_count} Gyms {pokestop_count} Pokestops {len(raids)} Raids")
             # push our results to their queues.
-            self.gym_db_queue.put(gyms)
+            if gyms:
+                self.gym_db_queue.put(gyms)
             # self.pokestop_db.put(pokestops)
             if raids:
                 self.raid_queue.put(raids)
