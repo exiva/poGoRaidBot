@@ -14,7 +14,8 @@ from pymongo.errors import ServerSelectionTimeoutError
 log = logging.getLogger()
 handler = logging.StreamHandler()
 formatter = logging.Formatter(
-    '[%(levelname)s] %(asctime)s [%(threadName)s] %(message)s')
+    '[%(levelname)s] %(asctime)s [%(threadName)s] %(message)s',
+    "%m/%d %I:%M:%S %p")
 handler.setFormatter(formatter)
 log.addHandler(handler)
 
@@ -66,7 +67,6 @@ def process_gym(db, gym_queue):
     while True:
         gyms = gym_queue.get()
         for gym in gyms:
-            log.info(gym)
             if not db.find_one({'id': gym['id']}):
                 log.info(f"Adding new gym: {gym['id']}")
                 document = {
@@ -126,44 +126,27 @@ def process_raid(db, raid_queue):
         raid_queue.task_done()
 
 
-def runServer(args, config, db_raid_queue, db_gym_queue, db_pokestop_queue):
-    app = SearchWorker(gymQueue=db_gym_queue)
-    app.run(use_reloader=False, debug=True,
-                host='127.0.0.1', port=5000)
-
 def overwatch(args, config):
     ''' Main overwatch thread '''
 
-
-
-    # print(args)
-    # print(config)
+    log.debug(f"args {args}")
+    log.debug(f"config {config}")
     accounts = Queue()
-    # spiral_queue = Queue()
-
-
 
     global db_raid_queue
     global db_gym_queue
     global db_pokestop_queue
 
-
-
     locations = []
     # generate_search area
-    if args.north:
-        # for coords in utils.generate_cells(40.911430, -73.755572, 40.578110, -73.423889):
+    if args.north: #create search area from s2 cells
         for coords in utils.generate_cells(args.north[0], args.north[1], args.south[0], args.south[1]):
             locations.append(coords)
-    elif args.latitude:
+    elif args.latitude: #create search area from spiral
         for coords in utils.generate_spiral(args.latitude, args.longitude, args.step_size, args.step_limit):
             locations.append(coords)
-    else:
+    else: #load area from CSV
         locations = args.area
-    # for coords in utils.generate_spiral(args.latitude, args.longitude, args.step_size, args.step_limit):
-
-        # spiral_queue.put(coords)
-        # locations.append(coords)
 
     # Start database
     client = MongoClient(config['mongodb']['hostname'], config['mongodb']['port'])
@@ -224,18 +207,11 @@ def overwatch(args, config):
 
     log.info(f"{len(config['devices'])} devices configured with {len(locs[0])} locations each.")
 
-    # print(devices)
-    # for device in config['devices']:
-    #     print(f'Device: {device}')
     server = SearchWorker(config=config, devices=devices, pokestop_db=db_pokestops,
         gym_db=db_gyms, raid_queue=msg_raid_queue, gym_db_queue=db_gym_queue,
         pokestop_db_queue=db_pokestop_queue, raid_db_queue=db_raid_queue
         )
     log.info(f"Starting server at http://{config['server']['host']}:{config['server']['port']}")
 
-    # db_gym_queue.put({"gym": "something"})
     server.run(threaded=True, use_reloader=False, debug=True,
                 host=config['server']['host'], port=config['server']['port'])
-
-
-    # discord.startBot(msg_raid_queue)
