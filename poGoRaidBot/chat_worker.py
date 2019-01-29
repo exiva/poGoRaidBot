@@ -138,9 +138,7 @@ def raid_chat_worker(args, config, db, regions, raids):
                             r_boss_types = pkmn_name[r_boss_pkmn].types
                             form_name = pkmn_form[r_boss_pkmn_form].name+' ' if pkmn_form[r_boss_pkmn_form] else ''
 
-                            if r_boss_pkmn_form:
-                                log.info(f"Form: {r_boss_pkmn_form}")
-                            if r_boss_pkmn_form and pkmn_form[r_boss_pkmn_form].name == "Alolan":
+                            if pkmn_form[r_boss_pkmn_form] and pkmn_form[r_boss_pkmn_form].name == "Alolan":
                                 img = "http://assets.pokemon.com/assets/cms2/img/pokedex/full/{:03}_f2.png".format(r_boss_pkmn)
                             else:
                                 img = "http://assets.pokemon.com/assets/cms2/img/pokedex/full/{:03}.png".format(r_boss_pkmn)
