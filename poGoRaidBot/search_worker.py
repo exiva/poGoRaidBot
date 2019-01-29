@@ -91,9 +91,9 @@ class SearchWorker(Flask):
                         alert = alert.get("severity", None)
                     self.weatherConditions.update({cell['s2CellId']:
                         (cell['gameplayWeather']['gameplayCondition'], alerts)})
-            except Exception as e:
-                log.error("Caught exception decoding weather {}".format(e))
+            except KeyError:
                 weather = None
+
             fort_count = 0
             pokestop_count = 0
             gym_count = 0

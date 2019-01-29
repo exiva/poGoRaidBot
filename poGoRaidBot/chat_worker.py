@@ -91,7 +91,7 @@ def raid_chat_worker(args, config, db, regions, raids):
                     db_raid_boss = db_raid.get('pokemon_id', None)
 
                 if (r_boss and raid['id'] not in started_raids) or (raid['id'] not in raid_sent):
-                        log.info(f"Processing raid {raid['id']}")
+                        log.debug(f"Processing raid {raid['id']}")
                         # print(raid)
                         g_team, g_team_icon = teams.get(r_gym['team'])
                         g_mapUrl = f"http://maps.google.com/maps?q={r_gym['lat']},{r_gym['lng']}"
