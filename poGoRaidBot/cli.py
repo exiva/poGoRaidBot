@@ -13,7 +13,7 @@ from threading import Thread
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 
 @click.group(context_settings=CONTEXT_SETTINGS)
-@click.option('--config', '-c', help='Location of Config file', type=click.File('r'))
+@click.option('--config', '-c', help='Location of Config file', type=click.File('r'), required=True)
 @click.option('--host', '-lh', help='Address for HTTP server to listen on', default='127.0.0.1')
 @click.option('--port', '-p', help='Port for HTTP server to listen on', default=5000)
 @click.option('--devices', '-d', help='CSV of device UUIDs (identifer, UUID)', type=click.File('r'))
@@ -21,9 +21,8 @@ CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 @click.pass_context
 def cli(ctx, config, host, port, devices, dump_coords):
     ctx.obj = {}
-    ctx.obj['dump_coords'] = dump_coords
-    if config:
-        ctx.obj['config'] = json.load(config)
+    ctx.obj['dump_coords'] = dump_coords    
+    ctx.obj['config'] = json.load(config)
     if devices:
         ctx.obj['config']['devices'] = []
         fields = ['identifer', 'uuid']
@@ -41,7 +40,7 @@ def cli(ctx, config, host, port, devices, dump_coords):
 @click.option('--step_limit', '-sl', help='Step Limit', default=10, type=click.INT)
 @click.pass_context
 def spiral(ctx, latitude, longitude, step_size, step_limit):
-    args = namedtuple('args', 'latitude longitude step_size step_limit north south cellsize')
+    args = namedtuple('args', 'latitude longitude step_size step_limit north south cellsize area')
     cmdargs = args(latitude, longitude, step_size, step_limit, None, None, None, None)
     print(cmdargs)
     if not ctx.obj['dump_coords']:
@@ -61,7 +60,7 @@ def spiral(ctx, latitude, longitude, step_size, step_limit):
 @click.pass_context
 def s2(ctx, north, south, cellsize):
     if not ctx.obj['dump_coords']:
-        args = namedtuple('args', 'latitude longitude step_size step_limit north south cellsize')
+        args = namedtuple('args', 'latitude longitude step_size step_limit north south cellsize area')
         cmdargs = args(None, None, None, None, north, south, cellsize, None)
         overwatch_thread = Thread(target=overwatch.overwatch, name='Overwatch', args=(cmdargs, ctx.obj['config']))
         overwatch_thread.start()

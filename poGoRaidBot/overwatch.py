@@ -213,5 +213,5 @@ def overwatch(args, config):
         )
     log.info(f"Starting server at http://{config['server']['host']}:{config['server']['port']}")
 
-    server.run(threaded=True, use_reloader=False, debug=True,
+    server.run(threaded=True, use_reloader=False, debug=False,
                 host=config['server']['host'], port=config['server']['port'])
