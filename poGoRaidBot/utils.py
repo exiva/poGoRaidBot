@@ -1,5 +1,6 @@
 import math
 import random
+import geopy
 import s2sphere
 
 def generate_cells(nLat, nLng, sLat, sLng, cell_size=13):
