@@ -6,11 +6,11 @@ import requests
 import s2sphere
 import ctypes
 from .fort_parser import parseGym, parsePokestop
-# from .conditions import weather_conditions
 from geopy.distance import great_circle
 from flask import Flask, jsonify, request, make_response, json
 from flask.json import JSONEncoder
 from base64 import b64decode
+from poGoRaidBot import utils
 
 from threading import Thread
 from queue import Queue
@@ -196,7 +196,7 @@ class SearchWorker(Flask):
             #we had 3 empty scans. delete this area.
             if device['emptyScan'] == 6:
                 log.warn(f"Nothing was found at {device['locations'][device['position']]} for 6 GMOs. Removing from search list.")
-                device['locations'].pop(device['position'])
+                # device['locations'].pop(device['position'])
 
             if fort_count > 0 or device['emptyScan'] == 6:
                 device['emptyScan'] = 0
@@ -222,8 +222,14 @@ class SearchWorker(Flask):
             try:
                 position = device['position']
                 d = {}
-                d['latitude'] = device['locations'][position]['lat']
-                d['longitude'] = device['locations'][position]['lng']
+                if device['emptyScan'] > 0:
+                    log.info("Empty scan. Jittering location.")
+                    newLoc = utils.jitter_location((device['locations'][position]['lat'],device['locations'][position]['lng']))
+                    d['latitude'] = newLoc[0]
+                    d['longitude'] = newLoc[1]
+                else:
+                    d['latitude'] = device['locations'][position]['lat']
+                    d['longitude'] = device['locations'][position]['lng']
 
                 return jsonify(d)
             except IndexError:
