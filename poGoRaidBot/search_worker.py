@@ -222,14 +222,8 @@ class SearchWorker(Flask):
             try:
                 position = device['position']
                 d = {}
-                if device['emptyScan'] > 0:
-                    log.info("Empty scan. Jittering location.")
-                    newLoc = utils.jitter_location((device['locations'][position]['lat'],device['locations'][position]['lng']))
-                    d['latitude'] = newLoc[0]
-                    d['longitude'] = newLoc[1]
-                else:
-                    d['latitude'] = device['locations'][position]['lat']
-                    d['longitude'] = device['locations'][position]['lng']
+                d['latitude'] = device['locations'][position]['lat']
+                d['longitude'] = device['locations'][position]['lng']
 
                 return jsonify(d)
             except IndexError:
