@@ -139,10 +139,13 @@ class SearchWorker(Flask):
                     gym_count += 1
                     # gym_details = self.gym_db.find_one({'id': f_id})
                     # log.info(f"Found gym {gym_details['name']}")
-
-                    self.gym_db.update_one({'id': f_id},
-                        {'$set': {'lastSeen': datetime.datetime.utcnow()}
-                        }).modified_count
+                    gym_details = self.gym_db.find_one({'id': f_id})
+                    gym, raid = parseGym(f, gym_details)
+                    gyms.append(gym)
+                    # self.gym_db.update_one({'id': f_id},
+                    #     {'$set': {'lastSeen': datetime.datetime.utcnow(),
+                    #     'isExRaidEligible': gym.get('isExRaidEligible')}
+                    #     }).modified_count
                 #parse pokestop details
                 elif f_type == 'CHECKPOINT':
                     pokestop_count += 1
