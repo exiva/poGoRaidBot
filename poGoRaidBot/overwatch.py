@@ -75,6 +75,7 @@ def process_gym(db, gym_queue):
                     'lastSeen': datetime.datetime.utcnow(),
                     'name': gym['name'],
                     'isSponsored': gym['sponsor'],
+                    'isExRaidEligible': gym.get('isExRaidEligible', False),
                     'location': {
                         'type': 'Point',
                         'coordinates': [
@@ -88,7 +89,8 @@ def process_gym(db, gym_queue):
                 document = {
                     'name': gym['name'],
                     'isSponsored': gym['sponsor'],
-                    'lastSeen': datetime.datetime.utcnow()
+                    'lastSeen': datetime.datetime.utcnow(),
+                    'isExRaidEligible': gym.get('isExRaidEligible', False),
                 }
                 db.update_one({'id': gym['id']}, {'$set': document}).modified_count
         gym_queue.task_done()
