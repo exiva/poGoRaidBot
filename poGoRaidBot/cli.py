@@ -21,7 +21,7 @@ CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 @click.pass_context
 def cli(ctx, config, host, port, devices, dump_coords):
     ctx.obj = {}
-    ctx.obj['dump_coords'] = dump_coords    
+    ctx.obj['dump_coords'] = dump_coords
     ctx.obj['config'] = json.load(config)
     if devices:
         ctx.obj['config']['devices'] = []
@@ -34,8 +34,8 @@ def cli(ctx, config, host, port, devices, dump_coords):
     pass
 
 @cli.command(context_settings=CONTEXT_SETTINGS)
-@click.option('--latitude', '-lat', help='Starting latitude', type=click.FLOAT)
-@click.option('--longitude', '-lng', help='Starting longitude', type=click.FLOAT)
+@click.option('--latitude', '-lat', help='Starting latitude', type=click.FLOAT, required=True)
+@click.option('--longitude', '-lng', help='Starting longitude', type=click.FLOAT, required=True)
 @click.option('--step_size', '-st', help='Step Size', default=0.0082, type=click.FLOAT)
 @click.option('--step_limit', '-sl', help='Step Limit', default=10, type=click.INT)
 @click.pass_context
@@ -54,26 +54,26 @@ def spiral(ctx, latitude, longitude, step_size, step_limit):
     pass
 
 @cli.command(context_settings=CONTEXT_SETTINGS)
-@click.option('--north', '-nc', help='Starting corner of search square (lat lng)', type=(float, float))
-@click.option('--south', '-sc', help='Ending corner of search square (lat lng)', type=(float, float))
-@click.option('--cellsize', '-cs', help='S2 cell size', default=13, type=click.INT)
+@click.option('--north', '-nc', help='Starting corner of search square (lat lng)', type=(float, float), required=True)
+@click.option('--south', '-sc', help='Ending corner of search square (lat lng)', type=(float, float), required=True)
+@click.option('--level', '-lv', help='S2 cell level 1-30', default=13, type=click.IntRange(1, 30))
 @click.pass_context
-def s2(ctx, north, south, cellsize):
+def s2(ctx, north, south, level):
     if not ctx.obj['dump_coords']:
-        args = namedtuple('args', 'latitude longitude step_size step_limit north south cellsize area')
-        cmdargs = args(None, None, None, None, north, south, cellsize, None)
+        args = namedtuple('args', 'latitude longitude step_size step_limit north south level area')
+        cmdargs = args(None, None, None, None, north, south, level, None)
         overwatch_thread = Thread(target=overwatch.overwatch, name='Overwatch', args=(cmdargs, ctx.obj['config']))
         overwatch_thread.start()
     else:
         writer = csv.DictWriter(ctx.obj['dump_coords'], fieldnames=['lat', 'lng'])
         writer.writeheader()
-        for coords in utils.generate_cells(north[0], north[1], south[0], south[1]):
+        for coords in utils.generate_cells(north[0], north[1], south[0], south[1], level):
             writer.writerow(coords)
     pass
 
 
 @cli.command(context_settings=CONTEXT_SETTINGS)
-@click.option('-f', help='CSV coordinates (Lat, LNG)', type=click.File('r'))
+@click.option('-f', help='CSV coordinates (Lat, LNG)', type=click.File('r'), required=True)
 @click.pass_context
 def csvfile(ctx, f):
     fields = ["lat","lon"]

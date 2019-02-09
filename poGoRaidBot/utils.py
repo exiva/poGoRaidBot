@@ -17,7 +17,7 @@ def generate_cells(nLat, nLng, sLat, sLng, cell_size=13):
     cells = r.get_covering(area)
 
     for cell in cells:
-        c = s2sphere.Cell(cell.parent(13))
+        c = s2sphere.Cell(cell.parent(cell_size))
         ll = s2sphere.LatLng.from_point(c.get_center())
         points.append({'lat': ll.lat().degrees, 'lng': ll.lng().degrees})
 

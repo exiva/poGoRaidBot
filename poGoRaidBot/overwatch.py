@@ -142,7 +142,7 @@ def overwatch(args, config):
     locations = []
     # generate_search area
     if args.north: #create search area from s2 cells
-        for coords in utils.generate_cells(args.north[0], args.north[1], args.south[0], args.south[1]):
+        for coords in utils.generate_cells(args.north[0], args.north[1], args.south[0], args.south[1], args.level):
             locations.append(coords)
     elif args.latitude: #create search area from spiral
         for coords in utils.generate_spiral(args.latitude, args.longitude, args.step_size, args.step_limit):
