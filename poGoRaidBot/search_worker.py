@@ -61,7 +61,7 @@ class SearchWorker(Flask):
 
         #define routes
         self.route("/", methods=['GET'])(self.index)
-        self.route("/loc", methods=['POST'])(self.getLocation)
+        self.route("/loc", methods=['GET'])(self.getLocation)
         self.route("/data", methods=['POST'])(self.getData)
         self.route("/status", methods=['GET'])(self.status)
 
@@ -219,9 +219,12 @@ class SearchWorker(Flask):
         return 'Okay', 200
 
     def getLocation(self):
-        req = request.get_json()
-        if req.get('uuid') in self.devices:
-            device = self.devices[req.get('uuid')]
+        # fix for 104c
+        # todo: accept both get and post
+        # req = request.get_json()
+        req = request.args
+        if req['uuid'] in self.devices:
+            device = self.devices[req['uuid']]
             try:
                 position = device['position']
                 d = {}
