@@ -219,17 +219,22 @@ class SearchWorker(Flask):
         return 'Okay', 200
 
     def getLocation(self):
-        # fix for 104c
-        # todo: accept both get and post
-        # req = request.get_json()
         req = request.args
         if req['uuid'] in self.devices:
             device = self.devices[req['uuid']]
             try:
                 position = device['position']
                 d = {}
-                d['latitude'] = device['locations'][position]['lat']
-                d['longitude'] = device['locations'][position]['lng']
+                if device['emptyScan'] > 0:
+                    newLoc = utils.jitter_location(
+                        (device['locations'][position]['lat'],
+                        device['locations'][position]['lng']),
+                        10)
+                    d['latitude'] = newLoc[0]
+                    d['longitude'] = newLoc[1]
+                else:
+                    d['latitude'] = device['locations'][position]['lat']
+                    d['longitude'] = device['locations'][position]['lng']
 
                 return jsonify(d)
             except IndexError:
