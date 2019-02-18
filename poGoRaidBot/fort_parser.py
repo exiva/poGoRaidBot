@@ -2,6 +2,7 @@ from .protos.pogoprotos.enums.team_color_pb2 import _TEAMCOLOR
 from .protos.pogoprotos.enums.pokemon_id_pb2 import _POKEMONID
 from .protos.pogoprotos.enums.pokemon_move_pb2 import _POKEMONMOVE
 from .protos.pogoprotos.enums.raid_level_pb2 import _RAIDLEVEL
+from .protos.pogoprotos.enums.gender_pb2 import _GENDER
 from .protos.pogoprotos.enums.form_pb2 import _FORM
 from .protos.pogoprotos.enums.weather_condition_pb2 import _WEATHERCONDITION
 
@@ -74,6 +75,7 @@ def parseGym(gymData, gymDBDetails):
                 rb_pkmn_move_fast = _POKEMONMOVE.values_by_name[r_boss['move1']].number
                 rb_pkmn_move_chrg = _POKEMONMOVE.values_by_name[r_boss['move2']].number
                 rb_pkmn_form = _FORM.values_by_name[r_boss['pokemonDisplay'].get('form', 'FORM_UNSET')].number
+                rb_pkmn_gender = _GENDER.values_by_name[r_boss['pokemonDisplay'].get('gender')].number
                 if rb_pkmn_form == 0:
                     rb_pkmn_form = None
 
@@ -81,6 +83,7 @@ def parseGym(gymData, gymDBDetails):
                 raid_boss = {
                     'pokemon_id': rb_pkmn_id,
                     'pokemon_form': rb_pkmn_form,
+                    'pokemon_gender': rb_pkmn_gender,
                     'pokemon_cp': rb_pkmn_cp,
                     'pokemon_move_fast': rb_pkmn_move_fast,
                     'pokemon_move_charge': rb_pkmn_move_chrg

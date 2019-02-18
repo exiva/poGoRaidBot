@@ -69,6 +69,13 @@ def raid_chat_worker(args, config, db, regions, raids):
         5: (0x867DBF, 'http://exiva.net/legendegg.png'),
     }
 
+    genders = {
+        0: ('',''),
+        1: ('(Male)','\u2642'),
+        2: ('(Female)', '\u2640'),
+        3: ('','')
+    }
+
     egg_sent = []
     raid_sent = []
     started_raids = []
@@ -136,6 +143,7 @@ def raid_chat_worker(args, config, db, regions, raids):
                             r_boss_pkmn_form = r_boss.get('pokemon_form', None)
                             r_boss_gamepress = make_googl(config['googl_key'], f"https://pokemongo.gamepress.gg/pokemon/{r_boss_pkmn}#raid-boss-counters")
                             r_boss_types = pkmn_name[r_boss_pkmn].types
+                            r_boss_gender = genders.get(r_boss.get('pokemon_gender'))
                             form_name = pkmn_form[r_boss_pkmn_form].name+' ' if pkmn_form[r_boss_pkmn_form] else ''
 
                             if pkmn_form[r_boss_pkmn_form] and pkmn_form[r_boss_pkmn_form].name == "Alolan":
@@ -151,8 +159,8 @@ def raid_chat_worker(args, config, db, regions, raids):
                                     if type in conditions[1]:
                                         r_boss_boost = f"\n\n*{conditions[0]} Weather Boost Active*"
 
-                            title = f"{r_city} {r_gym['name']}: {r_exclusive}level {raid['level']} {form_name}{pkmn_name[r_boss_pkmn].name} raid started"
-                            message = f"{r_exclusive}Level {raid['level']} {form_name}{pkmn_name[r_boss_pkmn].name} raid started at {r_gym['name']} {r_city}. Starts at {r_start}, Ends at {r_end}.{r_boss_boost}{ex_raid}"
+                            title = f"{r_city} {r_gym['name']}: {r_exclusive}level {raid['level']} {form_name}{pkmn_name[r_boss_pkmn].name} {r_boss_gender[1]} raid started"
+                            message = f"{r_exclusive}Level {raid['level']} {form_name}{pkmn_name[r_boss_pkmn].name} {r_boss_gender[0]} raid started at {r_gym['name']} {r_city}. Starts at {r_start}, Ends at {r_end}.{r_boss_boost}{ex_raid}"
                             started_raids.append(raid['id'])
 
                         if config['telegram']['enabled']:
