@@ -1,7 +1,5 @@
 import logging
 import datetime
-import time
-import random
 from numpy import array_split as array_split
 from queue import Queue
 from poGoRaidBot import utils
@@ -21,7 +19,7 @@ log.addHandler(handler)
 
 log.setLevel(logging.INFO)
 
-#Quiet some logging.
+# Quiet some logging.
 logging.getLogger('werkzeug').setLevel(logging.ERROR)
 logging.getLogger('geocoder').setLevel(logging.ERROR)
 
@@ -30,6 +28,7 @@ msg_lure_queue = Queue()
 db_raid_queue = Queue()
 db_gym_queue = Queue()
 db_pokestop_queue = Queue()
+
 
 def process_pokestop(db, pokestop_queue):
     log.info("Starting pokestop db worker.")
@@ -95,13 +94,13 @@ def process_gym(db, gym_queue):
                 db.update_one({'id': gym['id']}, {'$set': document}).modified_count
         gym_queue.task_done()
 
+
 def process_raid(db, raid_queue):
     log.info("Starting raid db worker")
     while True:
         raids = raid_queue.get()
         for raid in raids:
             boss = raid['raid'].get('boss', {})
-            pkmnid = boss.get('pokemon_id', None),
             if not db.find_one({'raid_id': raid['raid']['id']}):
                 document = {
                     'raid_id': raid['raid']['id'],
@@ -141,13 +140,13 @@ def overwatch(args, config):
 
     locations = []
     # generate_search area
-    if args.north: #create search area from s2 cells
+    if args.north:  # create search area from s2 cells
         for coords in utils.generate_cells(args.north[0], args.north[1], args.south[0], args.south[1], args.level):
             locations.append(coords)
-    elif args.latitude: #create search area from spiral
+    elif args.latitude:  # create search area from spiral
         for coords in utils.generate_spiral(args.latitude, args.longitude, args.step_size, args.step_limit):
             locations.append(coords)
-    else: #load area from CSV
+    else:  # load area from CSV
         locations = args.area
 
     # Start database
@@ -192,7 +191,7 @@ def overwatch(args, config):
     # search_thread.start()
     #
 
-    #args=(args, config, search_area, db_pokestops, db_gyms, msg_raid_queue, msg_lure_queue,
+    # args=(args, config, search_area, db_pokestops, db_gyms, msg_raid_queue, msg_lure_queue,
     # db_raid_queue, db_gym_queue, db_pokestop_queue))
     locs = array_split(locations, len(config['devices']))
 
@@ -210,10 +209,10 @@ def overwatch(args, config):
     log.info(f"{len(config['devices'])} devices configured with {len(locs[0])} locations each.")
 
     server = SearchWorker(config=config, devices=devices, pokestop_db=db_pokestops,
-        gym_db=db_gyms, raid_queue=msg_raid_queue, gym_db_queue=db_gym_queue,
-        pokestop_db_queue=db_pokestop_queue, raid_db_queue=db_raid_queue
-        )
+                          gym_db=db_gyms, raid_queue=msg_raid_queue, gym_db_queue=db_gym_queue,
+                          pokestop_db_queue=db_pokestop_queue, raid_db_queue=db_raid_queue)
+
     log.info(f"Starting server at http://{config['server']['host']}:{config['server']['port']}")
 
     server.run(threaded=True, use_reloader=False, debug=False,
-                host=config['server']['host'], port=config['server']['port'])
+               host=config['server']['host'], port=config['server']['port'])

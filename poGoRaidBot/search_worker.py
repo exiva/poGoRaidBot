@@ -1,14 +1,9 @@
 import logging
-import time
 import datetime
-import random
-import requests
 import s2sphere
 import ctypes
-from .fort_parser import parseGym, parsePokestop
-from geopy.distance import great_circle
-from flask import Flask, jsonify, request, make_response, json
-from flask.json import JSONEncoder
+from .fort_parser import parseGym
+from flask import Flask, jsonify, request, json
 from base64 import b64decode
 from poGoRaidBot import utils
 
@@ -16,19 +11,18 @@ from threading import Thread
 from queue import Queue
 
 from google.protobuf.json_format import MessageToJson
-from .protos.pogoprotos.networking.responses.fort_search_response_pb2 import FortSearchResponse
+import google.protobuf.message
 from .protos.pogoprotos.networking.responses.get_map_objects_response_pb2 import GetMapObjectsResponse
-from .protos.pogoprotos.networking.responses.gym_get_info_response_pb2 import GymGetInfoResponse
-from .protos.pogoprotos.networking.responses.fort_details_response_pb2 import FortDetailsResponse
 
 log = logging.getLogger(__name__)
+
 
 class SearchWorker(Flask):
     def __init__(self, *args, **kwargs):
         if not args:
-            kwargs.setdefault('import_name',__name__)
+            kwargs.setdefault('import_name', __name__)
 
-        #get args
+        # get args
         self.config = kwargs.get('config')
         self.devices = kwargs.get('devices')
         self.pokestop_db = kwargs.get('pokestop_db')
@@ -41,7 +35,7 @@ class SearchWorker(Flask):
 
         self.process_queue = Queue()
 
-        #clear kwargs
+        # clear kwargs
         kwargs.pop('config')
         kwargs.pop('devices')
         kwargs.pop('pokestop_db')
@@ -59,7 +53,7 @@ class SearchWorker(Flask):
         self.processThread = Thread(target=self.parseData, name='HTTP-Data-Process', args=(self, self.process_queue))
         self.processThread.start()
 
-        #define routes
+        # define routes
         self.route("/", methods=['GET'])(self.index)
         self.route("/loc", methods=['GET'])(self.getLocation)
         self.route("/data", methods=['POST'])(self.getData)
@@ -71,26 +65,25 @@ class SearchWorker(Flask):
     def parseData(self, *args):
         log.info('Starting Data processing thread')
         while True:
+            map_objects = self.process_queue.get()
+            # decode b64 delivered message from ++
+            response = b64decode(map_objects)
             try:
-                map_objects = self.process_queue.get()
-                #decode b64 delivered message from ++
-                response = b64decode(map_objects)
-                #decde raw protos to JSON
+                # decde raw protos to JSON
                 gmo = GetMapObjectsResponse()
                 gmo.ParseFromString(response)
-                gmo_response = json.loads(MessageToJson(gmo))
-            except:
+            except google.protobuf.message.DecodeError:
                 log.error("Caught exception decoding message.")
                 continue
 
+            gmo_response = json.loads(MessageToJson(gmo))
             try:
                 weather = gmo_response['clientWeather']
                 for cell in weather:
                     alerts = None
                     for alert in cell.get("alerts", {}):
                         alert = alert.get("severity", None)
-                    self.weatherConditions.update({cell['s2CellId']:
-                        (cell['gameplayWeather']['gameplayCondition'], alerts)})
+                    self.weatherConditions.update({cell['s2CellId']: (cell['gameplayWeather']['gameplayCondition'], alerts)})
             except KeyError:
                 weather = None
 
@@ -99,9 +92,8 @@ class SearchWorker(Flask):
             gym_count = 0
             forts = []
             gyms = []
-            pokestops = []
+
             raids = []
-            lures = []
 
             # grab all the forts we got from the GMO request
             # as we don't care about spawns
@@ -119,7 +111,7 @@ class SearchWorker(Flask):
                 f_lat = f['latitude']
                 f_lng = f['longitude']
 
-                #get lv10 s2 cell for weather
+                # get lv10 s2 cell for weather
                 p = s2sphere.LatLng.from_degrees(f_lat, f_lng)
                 cell = s2sphere.CellId().from_lat_lng(p).parent(10)
                 cellid = ctypes.c_int64(cell.id()).value
@@ -146,7 +138,7 @@ class SearchWorker(Flask):
                     #     {'$set': {'lastSeen': datetime.datetime.utcnow(),
                     #     'isExRaidEligible': gym.get('isExRaidEligible')}
                     #     }).modified_count
-                #parse pokestop details
+                # parse pokestop details
                 elif f_type == 'CHECKPOINT':
                     pokestop_count += 1
                     if not self.pokestop_db.find_one({'id': f_id}):
@@ -183,9 +175,9 @@ class SearchWorker(Flask):
             fort_count = 0
             for proto in proto_responses:
                 if proto.get('GetMapObjects', None):
-                    #put response into Queue and move on. let thread process it
+                    # put response into Queue and move on. let thread process it
                     response = b64decode(proto.get('GetMapObjects'))
-                    #decde raw protos to JSON
+                    # decde raw protos to JSON
                     gmo = GetMapObjectsResponse()
                     gmo.ParseFromString(response)
                     gmo_response = json.loads(MessageToJson(gmo))
@@ -196,7 +188,7 @@ class SearchWorker(Flask):
                     if fort_count > 0:
                         self.process_queue.put(proto.get('GetMapObjects', {}))
 
-            #we had 3 empty scans. delete this area.
+            # we had 3 empty scans. delete this area.
             if device['emptyScan'] == 3:
                 log.warn(f"Nothing was found at {device['locations'][device['position']]} for 3 GMOs. Removing from search list.")
                 # device['locations'].pop(device['position'])
@@ -226,10 +218,9 @@ class SearchWorker(Flask):
                 position = device['position']
                 d = {}
                 if device['emptyScan'] > 0:
-                    newLoc = utils.jitter_location(
-                        (device['locations'][position]['lat'],
-                        device['locations'][position]['lng']),
-                        10)
+                    newLoc = utils.jitter_location((device['locations'][position]['lat'],
+                                                    device['locations'][position]['lng']),
+                                                   10)
                     d['latitude'] = newLoc[0]
                     d['longitude'] = newLoc[1]
                 else:

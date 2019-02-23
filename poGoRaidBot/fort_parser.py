@@ -1,10 +1,13 @@
+import logging
 from .protos.pogoprotos.enums.team_color_pb2 import _TEAMCOLOR
 from .protos.pogoprotos.enums.pokemon_id_pb2 import _POKEMONID
 from .protos.pogoprotos.enums.pokemon_move_pb2 import _POKEMONMOVE
 from .protos.pogoprotos.enums.raid_level_pb2 import _RAIDLEVEL
 from .protos.pogoprotos.enums.gender_pb2 import _GENDER
 from .protos.pogoprotos.enums.form_pb2 import _FORM
-from .protos.pogoprotos.enums.weather_condition_pb2 import _WEATHERCONDITION
+
+log = logging.getLogger(__name__)
+
 
 def parseGym(gymData, gymDBDetails):
     try:
@@ -38,7 +41,7 @@ def parseGym(gymData, gymDBDetails):
         #     d_pkmn_ball = gd_pkmn_stats.get('pokeball', 0)
         #     defender = {'trainer': d_trainer, 'pokemon_id': d_pkmn_id, 'pokemon_cp': d_pkmn_cp, 'pokemon_move_fast': d_pkmn_move_fast, 'pokemon_move_charge': d_pkmn_move_chrg, 'pokemon_caught': d_pkmn_ball}
         #     g_defenders.append(defender)
-            # print("{} has a {} CP {} ({})".format(d_trainer, d_pkmn_cp, d_pkmn_id, d_pkmn_id))
+        # print("{} has a {} CP {} ({})".format(d_trainer, d_pkmn_cp, d_pkmn_id, d_pkmn_id))
         # print("gym {} at {},{} owned by {} last modified at {}".format(g_name, g_lat, g_lon, g_team, g_modified))
         gym = {
             'id': g_id,
@@ -98,18 +101,19 @@ def parseGym(gymData, gymDBDetails):
 
 
 def parsePokestop(pokestopData):
-        # print("pokestop: {}".format(pokestopData))
-        ps_id = pokestopData['fort_id']
-        ps_name = pokestopData['name']
-        ps_desc = pokestopData.get('description', '')
-        ps_lat = float(pokestopData['latitude'])
-        ps_lon = float(pokestopData['longitude'])
-        ps_modifier = pokestopData.get('modifiers', None)
-        ps_modifier_type = None
-        ps_modifier_expire = None
-        if ps_modifier:
-            ps_modifier_type = ps_modifier[0]['item_id']
-            ps_modifier_expire = ps_modifier[0]['expiration_timestamp_ms'] / 1000.0
-        # print("Pokestop found: id {}: {} {} at {},{}".format(ps_id, ps_name, ps_desc, ps_lat, ps_lon))
-        pokestop = {'pokestop_id': ps_id, 'pokestop_name': ps_name, 'pokestop_desc': ps_desc, 'latitude': ps_lat, 'longitude': ps_lon, 'modifier': ps_modifier_type, 'modifier_expire': ps_modifier_expire}
-        return pokestop
+    # print("pokestop: {}".format(pokestopData))
+    ps_id = pokestopData['fort_id']
+    ps_name = pokestopData['name']
+    ps_desc = pokestopData.get('description', '')
+    ps_lat = float(pokestopData['latitude'])
+    ps_lon = float(pokestopData['longitude'])
+    ps_modifier = pokestopData.get('modifiers', None)
+    ps_modifier_type = None
+    ps_modifier_expire = None
+    if ps_modifier:
+        ps_modifier_type = ps_modifier[0]['item_id']
+        ps_modifier_expire = ps_modifier[0]['expiration_timestamp_ms'] / 1000.0
+    # print("Pokestop found: id {}: {} {} at {},{}".format(ps_id, ps_name, ps_desc, ps_lat, ps_lon))
+    pokestop = {'pokestop_id': ps_id, 'pokestop_name': ps_name, 'pokestop_desc': ps_desc,
+                'latitude': ps_lat, 'longitude': ps_lon, 'modifier': ps_modifier_type, 'modifier_expire': ps_modifier_expire}
+    return pokestop

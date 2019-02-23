@@ -3,6 +3,7 @@ import random
 import geopy
 import s2sphere
 
+
 def generate_cells(nLat, nLng, sLat, sLng, cell_size=13):
     points = []
     area = s2sphere.LatLngRect.from_point_pair(
@@ -22,6 +23,7 @@ def generate_cells(nLat, nLng, sLat, sLng, cell_size=13):
         points.append({'lat': ll.lat().degrees, 'lng': ll.lng().degrees})
 
     return points
+
 
 def generate_spiral(starting_lat, starting_lng, step_size, step_limit):
     coords = [{'lat': starting_lat, 'lng': starting_lng}]
@@ -48,7 +50,7 @@ def generate_spiral(starting_lat, starting_lng, step_size, step_limit):
     return coords
 
 
-## Borrowed from RocketMap
+# Borrowed from RocketMap
 # Returns destination coords given origin coords, distance (Ms) and bearing.
 # This version is less precise and almost 1 order of magnitude faster than
 # using geopy.
@@ -68,6 +70,7 @@ def fast_get_new_coords(origin, distance, bearing):
         math.cos(distance / R) - math.sin(oLat) * math.sin(Lat))
 
     return math.degrees(Lat), math.degrees(Lon)
+
 
 # Apply a location jitter.
 def jitter_location(location=None, max_meters=5):

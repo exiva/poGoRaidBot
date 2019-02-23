@@ -262,6 +262,6 @@ class accountManager(object):
         device_info['firmware_type'] = ios_pool[pick_hash % len(ios_pool)]
 
         print("{} Using an {} on iOS {} with device ID {}".format(self.username, device,
-              device_info['firmware_type'], device_info['device_id']))
+                                                                  device_info['firmware_type'], device_info['device_id']))
 
         return device_info

@@ -12,6 +12,7 @@ from threading import Thread
 
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 
+
 @click.group(context_settings=CONTEXT_SETTINGS)
 @click.option('--config', '-c', help='Location of Config file', type=click.File('r'), required=True)
 @click.option('--host', '-lh', help='Address for HTTP server to listen on', default='127.0.0.1')
@@ -33,6 +34,7 @@ def cli(ctx, config, host, port, devices, dump_coords):
             ctx.obj['config']['devices'].append(dict(row))
     pass
 
+
 @cli.command(context_settings=CONTEXT_SETTINGS)
 @click.option('--latitude', '-lat', help='Starting latitude', type=click.FLOAT, required=True)
 @click.option('--longitude', '-lng', help='Starting longitude', type=click.FLOAT, required=True)
@@ -52,6 +54,7 @@ def spiral(ctx, latitude, longitude, step_size, step_limit):
         for coords in utils.generate_spiral(latitude, longitude, step_size, step_limit):
             writer.writerow(coords)
     pass
+
 
 @cli.command(context_settings=CONTEXT_SETTINGS)
 @click.option('--north', '-nc', help='Starting corner of search square (lat lng)', type=(float, float), required=True)
@@ -76,7 +79,7 @@ def s2(ctx, north, south, level):
 @click.option('-f', help='CSV coordinates (Lat, LNG)', type=click.File('r'), required=True)
 @click.pass_context
 def csvfile(ctx, f):
-    fields = ["lat","lon"]
+    fields = ["lat", "lon"]
     dialect = csv.Sniffer().sniff(f.read(1024))
     f.seek(0)
     reader = csv.DictReader(f, fieldnames=fields, dialect=dialect)
