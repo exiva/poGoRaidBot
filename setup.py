@@ -20,7 +20,7 @@ requirements = [
     'geocoder>=1.23.2',
     'numpy>=1.13.3',
     's2sphere>=0.2.5',
-    'Flask==0.11.1',
+    'Flask>=1.0.2',
     'geopy',
     'protobuf',
 ]
