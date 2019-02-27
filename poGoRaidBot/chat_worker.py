@@ -4,6 +4,7 @@ import pendulum
 import time
 import requests
 import geocoder
+import urllib
 
 import telegram
 from telegram import ParseMode
@@ -35,7 +36,7 @@ def make_googl(key, url):
 
 
 def getCity(lat, lng, key):
-    city = geocoder.google([lat, lng], method='reverse', key=key).city
+    city = geocoder.mapbox([lat, lng], method='reverse', key=key).city
     if not city:
         return ''
     else:
@@ -98,7 +99,7 @@ def raid_chat_worker(args, config, db, regions, raids):
                     # print(raid)
                     g_team, g_team_icon = teams.get(r_gym['team'])
                     g_mapUrl = f"http://maps.google.com/maps?q={r_gym['lat']},{r_gym['lng']}"
-                    g_mapImg = f"https://maps.googleapis.com/maps/api/staticmap?center={r_gym['lat']},{r_gym['lng']}&zoom=15&size=400x200&key={config['discord']['gmaps']}&markers=anchor:31,39%7Cicon:{g_team_icon}%7C{r_gym['lat']},{r_gym['lng']}"
+                    g_mapImg = f"https://api.mapbox.com/styles/v1/mapbox/streets-v10/static/url-{urllib.parse.quote_plus(g_team_icon)}({r_gym['lng']},r_gym{'lat'})/{r_gym['lng']},{r_gym['lat']},16/500x300?access_token={config['discord']['gmaps']}"
                     g_navGoogle = make_googl(config['googl_key'], f"https://google.com/maps/dir/?api=1&destination={r_gym['lat']},{r_gym['lng']}")
                     g_navApple = make_googl(config['googl_key'], f"http://maps.apple.com/maps?saddr=Current%20Location&daddr={r_gym['lat']},{r_gym['lng']}")
                     g_navWaze = make_googl(config['googl_key'], f"http://exiva.net/waze-redirect.html?ll={r_gym['lat']},{r_gym['lng']}")
