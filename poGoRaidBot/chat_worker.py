@@ -203,19 +203,16 @@ def raid_chat_worker(args, config, db, regions, raids):
                                     log.debug(f"Posted webhook {resp.text}")
                                     raid_sent.append(raid['id'])
                                     success = True
-                                    time.sleep(1)
                                 else:
                                     log.error(f"raid webhook failed: {resp.status_code}.")
-                                    time.sleep(4)
+                                    time.sleep(5)
                             except RequestException as e:
                                 log.error(f"raid webhook failed to send {e}")
-                                time.sleep(3)
+                                time.sleep(1)
                                 continue
                 # print("Raids sent: {}".format(raid_sent))
         except queue.Empty:
             continue
-        time.sleep(1)
-
 
 def lure_chat_worker(args, config, lures):
     # if config['telegram']['enabled']:
